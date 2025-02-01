@@ -1,59 +1,49 @@
-import matplotlib.pyplot as plt
-import numpy as np
-from causy.causal_discovery.constraint.algorithms.pc import PCClassic
-from causy.sample_generator import IIDSampleGenerator, SampleEdge, NodeReference
-from compute_rates import compute_total_coherency_rate
+from models import mediated_effect_small_effect_sizes, mediated_effect_medium_effect_sizes, \
+    mediated_effect_large_effect_sizes, classical_five_node_example_small_effect_size, \
+    classical_five_node_example_medium_effect_size, classical_five_node_example_large_effect_size, \
+    faithfulness_violation_four_nodes, faithfulness_violation_five_nodes, faithfulness_violation_six_nodes, \
+    causal_insufficiency_three_nodes, causal_insufficiency_four_nodes, faithfulness_violation_three_nodes
+from utils_plotting import plot_total_coherency_scores_for_different_models, \
+    plot_faithfulness_markov_and_total_coherency_scores_for_one_model
 
-
-def generate_coherency_scores(sample_sizes, num_repetitions):
-    model_1 = IIDSampleGenerator(
-        edges=[
-            SampleEdge(NodeReference("X"), NodeReference("Y"), 5),
-            SampleEdge(NodeReference("Y"), NodeReference("Z"), 6),
-        ],
-    )
-
-    average_coherency_rates = []
-    standard_deviations = []
-    for sample_size in sample_sizes:
-        total_coherency_rates = []
-        for _ in range(num_repetitions):
-            test_data, graph = model_1.generate(sample_size)
-            tst = PCClassic()
-            tst.create_graph_from_data(test_data)
-            tst.create_all_possible_edges()
-            tst.execute_pipeline_steps()
-
-            total_coherency_score = compute_total_coherency_rate(tst)
-            total_coherency_rates.append(total_coherency_score)
-
-        average_coherency_rate = np.mean(total_coherency_rates)
-        average_coherency_rates.append(average_coherency_rate)
-
-        standard_deviation = np.std(total_coherency_rates)
-        standard_deviations.append(standard_deviation)
-
-    return average_coherency_rates, standard_deviations
-
-
-def plot_coherency_scores(sample_sizes_list, num_repetitions):
-    plt.figure(figsize=(8, 5))
-
-    x_vals = sample_sizes_list
-    y_vals, standard_deviations = generate_coherency_scores(sample_sizes_list, num_repetitions)
-
-    plt.scatter(x_vals, y_vals, label="Average Coherency Score")
-    plt.errorbar(x_vals, y_vals, yerr=standard_deviations, fmt='o', label="Standard Deviation", linestyle='None')
-
-    plt.xlabel("Sample Size")
-    plt.ylabel("Average Coherency Score")
-    plt.ylim(0, 1)
-    plt.title("Coherency Score vs Sample Size")
-    plt.legend()
-    plt.savefig("coherency_scores.png")
-
-
-# Example usage
-sample_sizes_list = [i for i in range(100, 1000, 100)]
+# Example three nodes X -> Y -> Z, different effect sizes, compare total scores
+sample_sizes_list = [i for i in range(50, 1050, 50)]
 num_repetitions = 50
-plot_coherency_scores(sample_sizes_list, num_repetitions)
+model_names = ["small effects", "medium effects", "large effects"]
+plot_total_coherency_scores_for_different_models(sample_sizes_list, num_repetitions, [mediated_effect_small_effect_sizes, mediated_effect_medium_effect_sizes, mediated_effect_large_effect_sizes], model_names, "Total Coherency Scores for Mediated Effect With Different Effect Sizes")
+
+# Example five nodes and X -> Z <-Y as well as V <- Z -> W, different effect sizes, compare total scores
+sample_sizes_list = [i for i in range(1000, 56000, 5000)]
+num_repetitions = 50
+model_names = ["small effects", "medium effects", "large effects"]
+plot_total_coherency_scores_for_different_models(sample_sizes_list, num_repetitions, [classical_five_node_example_small_effect_size, classical_five_node_example_medium_effect_size, classical_five_node_example_large_effect_size], model_names, "Total Coherency Scores for Five Nodes With Different Effect Sizes")
+
+# Example for faithfulness violation with three nodes X -> Y -> Z, X-> Z, one model, all three scores
+sample_sizes_list = [i for i in range(100, 3400, 400)]
+num_repetitions = 50
+plot_faithfulness_markov_and_total_coherency_scores_for_one_model(sample_sizes_list, num_repetitions, faithfulness_violation_three_nodes, "Coherency Scores for Faithfulness Violation (three nodes)", y_lim_from=0.6, y_lim_to=1.1)
+
+# Example for faithfulness violation with four nodes X -> V -> W -> Y, X-> Y, one model, all three scores
+sample_sizes_list = [i for i in range(100, 3400, 400)]
+num_repetitions = 50
+plot_faithfulness_markov_and_total_coherency_scores_for_one_model(sample_sizes_list, num_repetitions, faithfulness_violation_four_nodes, "Coherency Scores for Faithfulness Violation (four nodes)", y_lim_from=0.6, y_lim_to=1.1)
+
+# Example for faithfulness violation with five nodes X -> V -> W -> U -> Y, X-> Y, one model, all three scores
+sample_sizes_list = [i for i in range(100, 3400, 400)]
+num_repetitions = 50
+plot_faithfulness_markov_and_total_coherency_scores_for_one_model(sample_sizes_list, num_repetitions, faithfulness_violation_five_nodes, "Coherency Scores for Faithfulness Violation (five nodes)", y_lim_from=0.6, y_lim_to=1.1)
+
+# Example for faithfulness violation with six nodes X -> V -> W -> U -> Z -> Y, X-> Y, one model, all three scores
+sample_sizes_list = [i for i in range(100, 3400, 400)]
+num_repetitions = 50
+plot_faithfulness_markov_and_total_coherency_scores_for_one_model(sample_sizes_list, num_repetitions, faithfulness_violation_six_nodes, "Coherency Scores for Faithfulness Violation (six nodes)", y_lim_from=0.6, y_lim_to=1.1)
+
+# Example for causal insufficiency with three nodes which are confounded by a hidden variable pairwise, one model, all three scores
+sample_sizes_list = [i for i in range(100, 2100, 100)]
+num_repetitions = 50
+plot_faithfulness_markov_and_total_coherency_scores_for_one_model(sample_sizes_list, num_repetitions, causal_insufficiency_three_nodes, "Coherency Scores for Causal Insufficiency (three nodes)", y_lim_from=0.8, y_lim_to=1.1, hidden_variables=["U1", "U2", "U3"])
+
+# Example for causal insufficiency with four nodes which are confounded by a hidden variable pairwise, one model, all three scores
+sample_sizes_list = [i for i in range(100, 2100, 100)]
+num_repetitions = 50
+plot_faithfulness_markov_and_total_coherency_scores_for_one_model(sample_sizes_list, num_repetitions, causal_insufficiency_four_nodes, "Coherency Scores for Causal Insufficiency (four nodes)", y_lim_from=0.8, y_lim_to=1.1, hidden_variables=["U1", "U2", "U3", "U4"])

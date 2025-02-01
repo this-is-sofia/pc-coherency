@@ -11,6 +11,7 @@ def count_conditionally_independent_triples(pc, subset_of_triples=None):
         for action in action_history_step.actions:
 
             if subset_of_triples is not None:
+                # the conditioning set of a conditionally independent triple is stored in the "separatedBy" key
                 if "separatedBy" in action.data:
                     if action.data["triple"] in subset_of_triples:
                         cond_indep_triples.append(action.data["triple"])
