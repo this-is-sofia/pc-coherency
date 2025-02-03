@@ -1,6 +1,6 @@
 from causy.causal_discovery.constraint.algorithms.pc import PCClassic
 from causy.sample_generator import IIDSampleGenerator, SampleEdge, NodeReference
-from utils_counting import count_conditionally_independent_triples, count_d_separated_triples
+from counting import count_conditionally_independent_triples, count_d_separated_triples
 from tests.utils_for_tests import CausyTestCase
 
 

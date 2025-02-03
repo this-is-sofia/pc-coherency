@@ -1,6 +1,6 @@
 import itertools
 
-from utils_counting import count_conditionally_independent_triples, count_d_separated_triples
+from counting import count_conditionally_independent_triples, count_d_separated_triples
 
 def compute_faithfulness_coherency_rate(pc):
     all_triples = _get_all_tested_triples(pc.graph.action_history)
