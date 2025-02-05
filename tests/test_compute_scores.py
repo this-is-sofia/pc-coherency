@@ -1,7 +1,12 @@
 from causy.causal_discovery.constraint.algorithms.pc import PCClassic
 from causy.sample_generator import IIDSampleGenerator, SampleEdge, NodeReference
-from compute_rates import _get_all_tested_triples, compute_faithfulness_coherency_rate, compute_markov_coherency_rate, \
-    compute_total_coherency_rate
+from compute_scores import _get_all_tested_triples, compute_faithfulness_coherency_score, \
+    compute_markov_coherency_score, \
+    compute_total_coherency_score, weight_by_exponential_decay_of_cardinality_of_conditioning_set
+from counting import count_conditionally_independent_triples
+from custom_pipeline import PCCustom
+from models import mediated_path_small_effects_seven_nodes, mediated_path_very_small_effects_seven_nodes, \
+    mediated_effect_very_small_three_nodes, mediated_path_very_small_effects_five_nodes
 from tests.utils_for_tests import CausyTestCase
 
 class ConherencyTestCase(CausyTestCase):
@@ -25,7 +30,7 @@ class ConherencyTestCase(CausyTestCase):
 
         self.assertGraphStructureIsEqual(tst.graph, graph)
 
-        rate = compute_faithfulness_coherency_rate(tst)
+        rate = compute_faithfulness_coherency_score(tst)
 
         self.assertEqual(rate, 1.0)
 
@@ -49,7 +54,7 @@ class ConherencyTestCase(CausyTestCase):
 
         self.assertGraphStructureIsEqual(tst.graph, graph)
 
-        rate = compute_faithfulness_coherency_rate(tst)
+        rate = compute_faithfulness_coherency_score(tst)
 
         self.assertEqual(rate, 1.0)
 
@@ -73,7 +78,7 @@ class ConherencyTestCase(CausyTestCase):
 
         self.assertGraphStructureIsEqual(tst.graph, graph)
 
-        rate = compute_faithfulness_coherency_rate(tst)
+        rate = compute_faithfulness_coherency_score(tst)
 
         self.assertEqual(rate, 1.0)
 
@@ -96,7 +101,7 @@ class ConherencyTestCase(CausyTestCase):
 
         self.assertGraphStructureIsEqual(tst.graph, graph)
 
-        rate = compute_markov_coherency_rate(tst)
+        rate = compute_markov_coherency_score(tst)
 
         self.assertEqual(rate, 1.0)
 
@@ -119,7 +124,7 @@ class ConherencyTestCase(CausyTestCase):
 
         self.assertGraphStructureIsEqual(tst.graph, graph)
 
-        rate = compute_markov_coherency_rate(tst)
+        rate = compute_markov_coherency_score(tst)
 
         self.assertEqual(rate, 1.0)
 
@@ -143,7 +148,7 @@ class ConherencyTestCase(CausyTestCase):
 
         self.assertGraphStructureIsEqual(tst.graph, graph)
 
-        rate = compute_markov_coherency_rate(tst)
+        rate = compute_markov_coherency_score(tst)
 
         self.assertEqual(rate, 1.0)
 
@@ -167,7 +172,7 @@ class ConherencyTestCase(CausyTestCase):
 
         self.assertGraphStructureIsEqual(tst.graph, graph)
 
-        rate = compute_markov_coherency_rate(tst)
+        rate = compute_markov_coherency_score(tst)
 
         self.assertEqual(rate, 1.0)
 
@@ -190,7 +195,7 @@ class ConherencyTestCase(CausyTestCase):
 
         self.assertGraphStructureIsEqual(tst.graph, graph)
 
-        rate = compute_total_coherency_rate(tst)
+        rate = compute_total_coherency_score(tst)
 
         self.assertEqual(rate, 1.0)
 
@@ -213,7 +218,7 @@ class ConherencyTestCase(CausyTestCase):
 
         self.assertGraphStructureIsEqual(tst.graph, graph)
 
-        rate = compute_total_coherency_rate(tst)
+        rate = compute_total_coherency_score(tst)
 
         self.assertEqual(rate, 1.0)
 
@@ -236,7 +241,7 @@ class ConherencyTestCase(CausyTestCase):
 
         self.assertGraphStructureIsEqual(tst.graph, graph)
 
-        rate = compute_total_coherency_rate(tst)
+        rate = compute_total_coherency_score(tst)
 
         self.assertEqual(rate, 1.0)
 
@@ -260,7 +265,7 @@ class ConherencyTestCase(CausyTestCase):
 
         self.assertGraphStructureIsEqual(tst.graph, graph)
 
-        rate = compute_total_coherency_rate(tst)
+        rate = compute_total_coherency_score(tst)
 
         self.assertEqual(rate, 1.0)
 
@@ -375,7 +380,7 @@ class ConherencyTestCase(CausyTestCase):
         tst.create_all_possible_edges()
         tst.execute_pipeline_steps()
 
-        rate = compute_faithfulness_coherency_rate(tst)
+        rate = compute_faithfulness_coherency_score(tst)
 
         self.assertLess(rate, 1.0)
         self.assertAlmostEqual(rate, 0.95, places=1)
@@ -397,7 +402,7 @@ class ConherencyTestCase(CausyTestCase):
         tst.create_all_possible_edges()
         tst.execute_pipeline_steps()
 
-        rate = compute_markov_coherency_rate(tst)
+        rate = compute_markov_coherency_score(tst)
 
         self.assertLess(rate, 1.0)
         self.assertAlmostEqual(rate, 0.95, places=1)
@@ -420,9 +425,9 @@ class ConherencyTestCase(CausyTestCase):
         tst.create_all_possible_edges()
         tst.execute_pipeline_steps()
 
-        rate = compute_total_coherency_rate(tst)
-        m_rate = compute_markov_coherency_rate(tst)
-        f_rate = compute_faithfulness_coherency_rate(tst)
+        rate = compute_total_coherency_score(tst)
+        m_rate = compute_markov_coherency_score(tst)
+        f_rate = compute_faithfulness_coherency_score(tst)
 
 
 
@@ -448,9 +453,9 @@ class ConherencyTestCase(CausyTestCase):
         tst.create_all_possible_edges()
         tst.execute_pipeline_steps()
 
-        rate = compute_total_coherency_rate(tst)
-        m_rate = compute_markov_coherency_rate(tst)
-        f_rate = compute_faithfulness_coherency_rate(tst)
+        rate = compute_total_coherency_score(tst)
+        m_rate = compute_markov_coherency_score(tst)
+        f_rate = compute_faithfulness_coherency_score(tst)
 
         self.assertEqual(rate, 1.0)
         self.assertEqual(m_rate, 1.0)
@@ -481,4 +486,111 @@ class ConherencyTestCase(CausyTestCase):
         tst.execute_pipeline_steps()
 
         self.assertEqual(len(_get_all_tested_triples(tst.graph.action_history)), 14)
+
+    def test_weighted_score_faithfulness_violation(self):
+        rdnv = self.seeded_random.normalvariate
+        sample_generator = IIDSampleGenerator(
+            edges=[
+                SampleEdge(NodeReference("X"), NodeReference("V"), 2),
+                SampleEdge(NodeReference("V"), NodeReference("Q"), -2),
+                SampleEdge(NodeReference("Q"), NodeReference("W"), 2),
+                SampleEdge(NodeReference("X"), NodeReference("B"), 2),
+                SampleEdge(NodeReference("B"), NodeReference("Z"), -2),
+                SampleEdge(NodeReference("Z"), NodeReference("W"), 2),
+                SampleEdge(NodeReference("X"), NodeReference("W"), 16),
+            ],
+            random=lambda: rdnv(0, 1),
+        )
+        test_data, graph = sample_generator.generate(10000)
+        tst = PCClassic()
+        tst.create_graph_from_data(test_data)
+        tst.create_all_possible_edges()
+        tst.execute_pipeline_steps()
+
+        rate = compute_total_coherency_score(tst)
+        print(tst)
+        weighted_score = compute_total_coherency_score(tst, weight_by_inverse_cardinality_of_conditioning_set)
+        print(weighted_score, rate)
+        self.assertLess(weighted_score, rate)
+
+    def test_weighted_scores_mediated_path(self):
+        sample_generator = mediated_path_small_effects_seven_nodes
+        test_data, graph = sample_generator.generate(10000)
+        tst = PCClassic()
+        tst.create_graph_from_data(test_data)
+        tst.create_all_possible_edges()
+        tst.execute_pipeline_steps()
+
+        self.assertGraphStructureIsEqual(tst.graph, graph)
+
+        results = tst.graph.action_history
+
+        for action_history_step in results:
+            for action in action_history_step.actions:
+                if "separatedBy" in action.data:
+                    triple = action.data["triple"]
+                    print(triple[0].name, triple[1].name, [node.name for node in triple[2]])
+
+        faithfulness_rate = compute_faithfulness_coherency_score(tst)
+        markov_rate = compute_markov_coherency_score(tst)
+
+        weighted_faithfulness_rate = compute_faithfulness_coherency_score(tst, weight_by_exponential_decay_of_cardinality_of_conditioning_set)
+        weighted_markov_rate = compute_markov_coherency_score(tst, weight_by_exponential_decay_of_cardinality_of_conditioning_set)
+
+        print(faithfulness_rate, markov_rate)
+        print(weighted_faithfulness_rate, weighted_markov_rate)
+
+    def test_very_small_effects_graph(self):
+        sample_generator = mediated_effect_very_small_three_nodes
+        test_data, graph = sample_generator.generate(1000)
+        tst = PCClassic()
+        tst.create_graph_from_data(test_data)
+        tst.create_all_possible_edges()
+        tst.execute_pipeline_steps()
+
+        #self.assertGraphStructureIsEqual(tst.graph, graph)
+
+        results = tst.graph.action_history
+
+        for action_history_step in results:
+            for action in action_history_step.actions:
+                if "separatedBy" in action.data:
+                    triple = action.data["triple"]
+                    print(triple[0].name, triple[1].name, [node.name for node in triple[2]])
+
+        faithfulness_rate = compute_faithfulness_coherency_score(tst)
+        markov_rate = compute_markov_coherency_score(tst)
+
+        weighted_faithfulness_rate = compute_faithfulness_coherency_score(tst, weight_by_exponential_decay_of_cardinality_of_conditioning_set)
+        weighted_markov_rate = compute_markov_coherency_score(tst, weight_by_exponential_decay_of_cardinality_of_conditioning_set)
+
+        print(faithfulness_rate, markov_rate)
+        print(weighted_faithfulness_rate, weighted_markov_rate)
+
+    def test_very_small_effects_graph(self):
+        sample_generator = mediated_path_very_small_effects_five_nodes
+        test_data, graph = sample_generator.generate(10000)
+        tst = PCClassic()
+        tst.create_graph_from_data(test_data)
+        tst.create_all_possible_edges()
+        tst.execute_pipeline_steps()
+
+        #self.assertGraphStructureIsEqual(tst.graph, graph)
+
+        results = tst.graph.action_history
+
+        for action_history_step in results:
+            for action in action_history_step.actions:
+                if "separatedBy" in action.data:
+                    triple = action.data["triple"]
+                    print(triple[0].name, triple[1].name, [node.name for node in triple[2]])
+
+        faithfulness_rate = compute_faithfulness_coherency_score(tst)
+        markov_rate = compute_markov_coherency_score(tst)
+
+        weighted_faithfulness_rate = compute_faithfulness_coherency_score(tst, weight_by_exponential_decay_of_cardinality_of_conditioning_set)
+        weighted_markov_rate = compute_markov_coherency_score(tst, weight_by_exponential_decay_of_cardinality_of_conditioning_set)
+
+        print(faithfulness_rate, markov_rate)
+        print(weighted_faithfulness_rate, weighted_markov_rate)
 

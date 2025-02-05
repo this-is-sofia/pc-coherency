@@ -1,8 +1,10 @@
+import json
+
 import matplotlib.pyplot as plt
 import numpy as np
 from causy.causal_discovery.constraint.algorithms.pc import PCClassic
-from compute_rates import compute_total_coherency_rate, compute_faithfulness_coherency_rate, \
-    compute_markov_coherency_rate
+from compute_scores import compute_total_coherency_score, compute_faithfulness_coherency_score, \
+    compute_markov_coherency_score
 
 # Set default plot style
 plt.style.use('seaborn-v0_8-colorblind')
@@ -32,7 +34,7 @@ def generate_test_data_and_run_pc(model, sample_size, hidden_variables=None):
     return tst
 
 
-def generate_average_coherency_scores(sample_sizes, num_repetitions, model, score_functions, hidden_variables=None):
+def generate_average_coherency_scores(sample_sizes, num_repetitions, model, score_functions, hidden_variables=None, model_name="no_name"):
     """
     Computes the average and standard deviation of coherency scores using given scoring functions.
 
@@ -58,11 +60,20 @@ def generate_average_coherency_scores(sample_sizes, num_repetitions, model, scor
             results[name][0].append(np.mean(scores[name]))  # Average
             results[name][1].append(np.std(scores[name]))  # Standard deviation
 
+    # Construct the file name dynamically based on parameters
+    hidden_var_str = "_".join(hidden_variables) if hidden_variables else "no_hidden_vars"
+    file_name = f"results/{model_name}_{hidden_var_str}.json"
+
+    # Save to JSON
+    results_with_sample_sizes = {"sample_sizes": sample_sizes, "scores": results}
+    with open(file_name, "w") as f:
+        json.dump(results_with_sample_sizes, f, indent=4)
+
     return results
 
 
 def plot_coherency_scores(sample_sizes_list, num_repetitions, model, title, y_lim_from=0, y_lim_to=1.5,
-                          hidden_variables=None):
+                          hidden_variables=None, model_name="no_name"):
     """
     Plots coherency scores (Total, Faithfulness, Markov) for a given model.
 
@@ -77,18 +88,18 @@ def plot_coherency_scores(sample_sizes_list, num_repetitions, model, title, y_li
     plt.figure(figsize=(8, 5))
 
     score_functions = {
-        "Total": compute_total_coherency_rate,
-        "Faithfulness": compute_faithfulness_coherency_rate,
-        "Markov": compute_markov_coherency_rate
+        "Total": compute_total_coherency_score,
+        "Faithfulness": compute_faithfulness_coherency_score,
+        "Markov": compute_markov_coherency_score
     }
 
     results = generate_average_coherency_scores(sample_sizes_list, num_repetitions, model, score_functions,
-                                                hidden_variables)
+                                                hidden_variables, model_name)
 
     markers = {"Total": "s", "Markov": "o", "Faithfulness": "^"}
 
     for name, (y_vals, _) in results.items():
-        plt.scatter(sample_sizes_list, y_vals, s=30, marker=markers[name], label=name)
+        plt.scatter(sample_sizes_list, y_vals, s=10, marker=markers[name], label=name)
 
     plt.xlabel("Sample Size")
     plt.ylabel("Average Coherency Score")
@@ -117,10 +128,10 @@ def plot_total_coherency_scores_for_different_models(sample_sizes_list, num_repe
     for model, model_name in zip(models, model_names):
         x_vals = sample_sizes_list
         y_vals, standard_deviations = generate_average_coherency_scores(
-            sample_sizes_list, num_repetitions, model, {"Total": compute_total_coherency_rate}, hidden_variables
+            sample_sizes_list, num_repetitions, model, {"Total": compute_total_coherency_score}, hidden_variables, model_name
         )["Total"]
 
-        plt.scatter(x_vals, y_vals, s=30, marker='s', label=model_name)
+        plt.scatter(x_vals, y_vals, s=10, marker='s', label=model_name)
 
     plt.xlabel("Sample Size")
     plt.ylabel("Average Coherency Score")
