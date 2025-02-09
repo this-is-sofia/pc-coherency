@@ -191,3 +191,27 @@ class CountingTestCase(CausyTestCase):
 
         nb_of_triples, triples = count_d_separated_triples(tst, [(tst.graph.node_by_id('X'), tst.graph.node_by_id('Z'), []), (tst.graph.node_by_id('X'), tst.graph.node_by_id('Y'), [])])
         self.assertEqual(nb_of_triples, 1)
+
+    def test_count_d_separated_triples_four_nodes_no_orientations(self):
+        rdnv = self.seeded_random.normalvariate
+        model = IIDSampleGenerator(
+            edges=[
+                SampleEdge(NodeReference("X"), NodeReference("Y"), 1),
+                SampleEdge(NodeReference("Y"), NodeReference("Z"), 1),
+                SampleEdge(NodeReference("Z"), NodeReference("W"), 1),
+            ],
+            random=lambda: rdnv(0, 1),
+        )
+        sample_size = 1000
+        test_data, graph = model.generate(sample_size)
+
+        tst = PCClassic()
+        tst.create_graph_from_data(test_data)
+        tst.create_all_possible_edges()
+        tst.execute_pipeline_steps()
+
+        self.assertGraphStructureIsEqual(tst.graph, graph)
+
+        nb_of_triples, triples = count_d_separated_triples(tst, [[tst.graph.node_by_id('X'), tst.graph.node_by_id('W'), [tst.graph.node_by_id('Y'), tst.graph.node_by_id('Z')]]])
+
+

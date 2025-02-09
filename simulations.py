@@ -1,18 +1,36 @@
+import os
+
+from compute_scores import weight_by_exponential_decay_of_cardinality_of_conditioning_set, \
+    compute_total_coherency_score, compute_faithfulness_coherency_score, compute_markov_coherency_score
+from generate_average_scores import generate_average_coherency_scores
 from models import classical_five_node_example_small_effect_size, \
     classical_five_node_example_medium_effect_size, classical_five_node_example_large_effect_size, \
     faithfulness_violation_four_nodes, faithfulness_violation_five_nodes, faithfulness_violation_six_nodes, \
     causal_insufficiency_three_nodes, causal_insufficiency_four_nodes, faithfulness_violation_three_nodes, \
     mediated_path_very_small_effects, mediated_path_small_effects, mediated_path_almost_one_as_effect, \
-    mediated_path_one_as_effect, mediated_path_five_as_effect, mediated_path_ten_as_effect
-from plotting import plot_total_coherency_scores_for_different_models, plot_coherency_scores
+    mediated_path_one_as_effect, mediated_path_five_as_effect, mediated_path_ten_as_effect, \
+    classical_five_node_example_one_fifth_effect_size, classical_five_node_example_one_half_effect_size
+from plotting import plot_coherency_scores
 
-sample_sizes_list = [i for i in range(100, 1600, 100)]
-num_repetitions = 50
-model_names = ["effect size 0.2", "effect size 0.5", "effect size 1", "effect size 5", "effect size 10"]
-effect_models = [
+sample_sizes_list = [50, 100, 1000, 10000]
+num_repetitions = 100
+score_functions = {
+    "Total": compute_total_coherency_score,
+    "Faithfulness": compute_faithfulness_coherency_score,
+    "Markov": compute_markov_coherency_score
+}
+"""
+# Simulations for mediated effects
+model_names_mediated_effects = [
+    "effect_size_0.2",
+    "effect_size_0.5",
+    "effect_size_1",
+    "effect_size_5",
+    "effect_size_10"
+]
+effect_models_mediated_path = [
     mediated_path_very_small_effects,
     mediated_path_small_effects,
-    mediated_path_almost_one_as_effect,
     mediated_path_one_as_effect,
     mediated_path_five_as_effect,
     mediated_path_ten_as_effect
@@ -22,58 +40,103 @@ effect_models = [
 hidden_variable_sets = [
     ["W", "V", "U", "T"],    # Three nodes (X → Y → Z)
     ["V", "U", "T"],         # Four nodes (X → Y → Z → W)
-    #["U", "T"],              # Five nodes (X → Y → Z → W → V)
-    #["T"],                   # Six nodes (X → Y → Z → W → V → U)
-    #[]                       # Seven nodes (X → Y → Z → W → V → U → T)
+    ["U", "T"],              # Five nodes (X → Y → Z → W → V)
+    ["T"],                   # Six nodes (X → Y → Z → W → V → U)
+    []                       # Seven nodes (X → Y → Z → W → V → U → T)
 ]
 
 # Generate plots for different node configurations
-for i, hidden_vars in enumerate(hidden_variable_sets, start=3):
-    title = f"Total Coherency Scores for Mediated Effect With {i} Nodes"
-    plot_total_coherency_scores_for_different_models(
+
+for hidden_vars in hidden_variable_sets:
+    for model, model_name_string in zip(effect_models_mediated_path, model_names_mediated_effects):
+        generate_average_coherency_scores(
+            sample_sizes_list,
+            num_repetitions,
+            model,
+            score_functions,
+            hidden_variables=hidden_vars,
+            model_name=model_name_string,
+            folder_name="mediated_path"
+        )
+
+# Simulations for classical five node model
+effect_models_five_nodes = [
+    classical_five_node_example_one_fifth_effect_size,
+    classical_five_node_example_one_half_effect_size,
+    classical_five_node_example_small_effect_size,
+    classical_five_node_example_medium_effect_size,
+    classical_five_node_example_large_effect_size
+]
+
+model_names_five_nodes = [
+    "effect size 0.2",
+    "effect size 0.5",
+    "effect size 1",
+    "effect size 5",
+    "effect size 10"
+]
+
+for model, model_name_string in zip(effect_models_five_nodes, model_names_five_nodes):
+    generate_average_coherency_scores(
         sample_sizes_list,
         num_repetitions,
-        effect_models,
-        model_names,
-        title,
-        hidden_variables=hidden_vars,
-        y_lim_from=0.5,
-        y_lim_to=1.2
+        model,
+        score_functions,
+        hidden_variables=[],
+        model_name=model_name_string,
+        folder_name="five_node_model"
     )
 
+# Simulations for faithfulness violations
+effect_models_faithfulness_violation = [
+    faithfulness_violation_three_nodes,
+    faithfulness_violation_four_nodes,
+    faithfulness_violation_five_nodes,
+    faithfulness_violation_six_nodes
+]
 
-# Example five nodes and X -> Z <-Y as well as V <- Z -> W, different effect sizes, compare total scores
-sample_sizes_list = [i for i in range(1000, 56000, 5000)]
-num_repetitions = 50
-model_names = ["small effects", "medium effects", "large effects"]
-#plot_total_coherency_scores_for_different_models(sample_sizes_list, num_repetitions, [classical_five_node_example_small_effect_size, classical_five_node_example_medium_effect_size, classical_five_node_example_large_effect_size], model_names, "Total Coherency Scores for Five Nodes With Different Effect Sizes")
+model_names_faithfulness_violation = [
+    "three nodes",
+    "four nodes",
+    "five nodes",
+    "six nodes"
+]
 
-# Example for faithfulness violation with three nodes X -> Y -> Z, X-> Z, one model, all three scores
-sample_sizes_list = [i for i in range(100, 3400, 400)]
-num_repetitions = 50
-#plot_coherency_scores(sample_sizes_list, num_repetitions, faithfulness_violation_three_nodes, "Coherency Scores for Faithfulness Violation (three nodes)", y_lim_from=0.6, y_lim_to=1.1)
+for model, model_name_string in zip(effect_models_faithfulness_violation, model_names_faithfulness_violation):
+    generate_average_coherency_scores(
+        sample_sizes_list,
+        num_repetitions,
+        model,
+        score_functions,
+        hidden_variables=[],
+        model_name=model_name_string,
+        folder_name="faithfulness_violation"
+    )
+"""
+# Simulation for causal insufficiency, three hidden variables (U_1, U_2, U_3)
+generate_average_coherency_scores(
+    sample_sizes_list,
+    num_repetitions,
+    causal_insufficiency_three_nodes,
+    score_functions,
+    hidden_variables=["U1", "U2", "U3"],
+    model_name="three nodes",
+    folder_name="causal_insufficiency"
+)
 
-# Example for faithfulness violation with four nodes X -> V -> W -> Y, X-> Y, one model, all three scores
-sample_sizes_list = [i for i in range(100, 3400, 400)]
-num_repetitions = 50
-#plot_coherency_scores(sample_sizes_list, num_repetitions, faithfulness_violation_four_nodes, "Coherency Scores for Faithfulness Violation (four nodes)", y_lim_from=0.6, y_lim_to=1.1)
+# Simulation for causal insufficiency, four hidden variables (U_1, U_2, U_3, U_4)
+generate_average_coherency_scores(
+    sample_sizes_list,
+    num_repetitions,
+    causal_insufficiency_four_nodes,
+    score_functions,
+    hidden_variables=["U1", "U2", "U3", "U4"],
+    model_name="four nodes",
+    folder_name="causal_insufficiency"
+)
 
-# Example for faithfulness violation with five nodes X -> V -> W -> U -> Y, X-> Y, one model, all three scores
-sample_sizes_list = [i for i in range(100, 3400, 400)]
-num_repetitions = 50
-#plot_coherency_scores(sample_sizes_list, num_repetitions, faithfulness_violation_five_nodes, "Coherency Scores for Faithfulness Violation (five nodes)", y_lim_from=0.6, y_lim_to=1.1)
+# Plot all results
+script_dir = os.path.dirname(os.path.abspath(__file__))
+folder_results = os.path.join(script_dir, "results")
+plot_coherency_scores(results_folder=folder_results, output_folder="plots")
 
-# Example for faithfulness violation with six nodes X -> V -> W -> U -> Z -> Y, X-> Y, one model, all three scores
-sample_sizes_list = [i for i in range(100, 3400, 400)]
-num_repetitions = 50
-#plot_coherency_scores(sample_sizes_list, num_repetitions, faithfulness_violation_six_nodes, "Coherency Scores for Faithfulness Violation (six nodes)", y_lim_from=0.6, y_lim_to=1.1)
-
-# Example for causal insufficiency with three nodes which are confounded by a hidden variable pairwise, one model, all three scores
-sample_sizes_list = [i for i in range(100, 2100, 100)]
-num_repetitions = 50
-#plot_coherency_scores(sample_sizes_list, num_repetitions, causal_insufficiency_three_nodes, "Coherency Scores for Causal Insufficiency (three nodes)", y_lim_from=0.8, y_lim_to=1.1, hidden_variables=["U1", "U2", "U3"])
-
-# Example for causal insufficiency with four nodes which are confounded by a hidden variable pairwise, one model, all three scores
-sample_sizes_list = [i for i in range(100, 2100, 100)]
-num_repetitions = 50
-#plot_coherency_scores(sample_sizes_list, num_repetitions, causal_insufficiency_four_nodes, "Coherency Scores for Causal Insufficiency (four nodes)", y_lim_from=0.8, y_lim_to=1.1, hidden_variables=["U1", "U2", "U3", "U4"])

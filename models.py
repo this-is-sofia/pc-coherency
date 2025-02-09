@@ -28,6 +28,24 @@ classical_five_node_example_large_effect_size = IIDSampleGenerator(
     ],
 )
 
+classical_five_node_example_one_half_effect_size = IIDSampleGenerator(
+    edges=[
+        SampleEdge(NodeReference("X"), NodeReference("Z"), 0.5),
+        SampleEdge(NodeReference("Y"), NodeReference("Z"), 0.5),
+        SampleEdge(NodeReference("Z"), NodeReference("W"), 0.5),
+        SampleEdge(NodeReference("Z"), NodeReference("V"), 0.5),
+    ],
+)
+
+classical_five_node_example_one_fifth_effect_size = IIDSampleGenerator(
+    edges=[
+        SampleEdge(NodeReference("X"), NodeReference("Z"), 0.2),
+        SampleEdge(NodeReference("Y"), NodeReference("Z"), 0.2),
+        SampleEdge(NodeReference("Z"), NodeReference("W"), 0.2),
+        SampleEdge(NodeReference("Z"), NodeReference("V"), 0.2),
+    ],
+)
+
 faithfulness_violation_three_nodes = IIDSampleGenerator(
     edges=[
         SampleEdge(NodeReference("X"), NodeReference("Y"), 1),

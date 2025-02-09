@@ -45,13 +45,13 @@ files = [
 
 [[package]]
 name = "causy"
-version = "0.1.39"
+version = "0.1.45"
 description = "Causal discovery made easy."
 optional = false
 python-versions = "<4.0,>=3.10"
 files = [
-    {file = "causy-0.1.39-py3-none-any.whl", hash = "sha256:260134cb10434ed078d419717cf2fa009337a52711104f47b873176abcc5b47e"},
-    {file = "causy-0.1.39.tar.gz", hash = "sha256:fda153b51f9db70fcca83d920e3d72b0e34e8e494359a32f4377c728ef44bc79"},
+    {file = "causy-0.1.45-py3-none-any.whl", hash = "sha256:01b05baedd02e77da61e7a4600fc77a697567b14387e5421790cac3a130d1ae2"},
+    {file = "causy-0.1.45.tar.gz", hash = "sha256:cea0437e06b5a2cda110ee2eca61a6804cbf9fa273160f52f48f34514c2bdcfe"},
 ]
 
 [package.dependencies]

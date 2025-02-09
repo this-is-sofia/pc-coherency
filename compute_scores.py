@@ -1,7 +1,7 @@
 import math
-import itertools
 
 from counting import count_conditionally_independent_triples, count_d_separated_triples
+from utils import _get_all_tested_triples
 
 
 def compute_faithfulness_coherency_score(pc, weight_function=lambda triple: 1):
@@ -38,13 +38,20 @@ def compute_markov_coherency_score(pc, weight_function=lambda triple: 1):
 
 def compute_total_coherency_score(pc, weight_function=lambda triple: 1):
     all_triples = _get_all_tested_triples(pc.graph.action_history)
+    for triple in all_triples:
+        print(f"all_triple={triple[0].name, triple[1].name, [node.name for node in triple[2]]}, weight={weight_function(triple)}")
 
     weighted_count_all = sum(weight_function(triple) for triple in all_triples)
     if weighted_count_all == 0:
         return "no tests were performed"
 
     _, ind_triples = count_conditionally_independent_triples(pc, all_triples)
+    for triple in ind_triples:
+        print(f"ind_triple={triple[0].name, triple[1].name, [node.name for node in triple[2]]}, weight={weight_function(triple)}")
+
     _, d_sep_triples = count_d_separated_triples(pc, all_triples)
+    for triple in d_sep_triples:
+        print(f"d_sep_triple={triple[0].name, triple[1].name, [node.name for node in triple[2]]}, weight={weight_function(triple)}")
 
     weighted_mismatch = 0
     for triple in ind_triples:
@@ -60,19 +67,6 @@ def compute_total_coherency_score(pc, weight_function=lambda triple: 1):
 
     return (weighted_count_all - weighted_mismatch) / weighted_count_all
 
-def _get_all_tested_triples(pc_results):
-    triples = []
-    for result in pc_results:
-        for action in result.all_proposed_actions:
-            if "triple" in action.data:
-                triples.append(action.data["triple"])
-
-    # the PC algorithm tests ordered triples and their neighbours, therefore some triples are tested twice. We remove these duplicates
-    for triple1, triple2 in itertools.combinations(triples, 2):
-        if triple1[2] == triple2[2] and triple1[0] == triple2[1] and triple1[1] == triple2[0]:
-            triples.remove(triple1)
-
-    return triples
 
 def weight_by_exponential_decay_of_cardinality_of_conditioning_set(triple):
     return math.exp(-len(triple[2]))
