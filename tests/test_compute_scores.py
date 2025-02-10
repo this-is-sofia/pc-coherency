@@ -1,4 +1,4 @@
-from causy.causal_discovery.constraint.algorithms.pc import PCClassic
+from causy.causal_discovery.constraint.algorithms.pc import PCClassic, PC
 from causy.sample_generator import IIDSampleGenerator, SampleEdge, NodeReference
 from compute_scores import compute_faithfulness_coherency_score, \
     compute_markov_coherency_score, \
@@ -37,16 +37,16 @@ class ConherencyTestCase(CausyTestCase):
         rdnv = self.seeded_random.normalvariate
         model = IIDSampleGenerator(
             edges=[
-                SampleEdge(NodeReference("X"), NodeReference("Y"), 5),
-                SampleEdge(NodeReference("Z"), NodeReference("Y"), 6),
-                SampleEdge(NodeReference("Y"), NodeReference("W"), 3),
+                SampleEdge(NodeReference("X"), NodeReference("Y"), 1),
+                SampleEdge(NodeReference("Z"), NodeReference("Y"), 1),
+                SampleEdge(NodeReference("Y"), NodeReference("W"), 1),
             ],
             random=lambda: rdnv(0, 1),
         )
-        sample_size = 100000
+        sample_size = 1000000
         test_data, graph = model.generate(sample_size)
 
-        tst = PCClassic()
+        tst = PC()
         tst.create_graph_from_data(test_data)
         tst.create_all_possible_edges()
         tst.execute_pipeline_steps()

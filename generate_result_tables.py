@@ -30,7 +30,7 @@ def generate_result_table(result, name="") -> str:
 \\begin{table}
 \centering
 \caption{"""+name+"""}\label{tab:data}"""
-    accuracy = 2
+    accuracy = 3
     table += "\\begin{tabular}{"+"c"*(len(dimensions)+1)+"}\n"
     table += "\\toprule % from booktabs package\n"
     table += "\\bfseries & " +" & ".join(["\\bfseries " + str(d) for d in dimensions]) + " \\\\ \n"
