@@ -1,6 +1,6 @@
-# Supplementary Code for paper "Internal Incoherency Scores for Constraint-based Causal Discovery Algorithms"
+# Supplementary Code for article "Internal Incoherency Scores for Constraint-based Causal Discovery Algorithms"
 
-This repository contains the supplementary code for the paper "Internal Incoherency Scores for Constraint-based Causal Discovery Algorithms".
+This repository contains the supplementary code for the article "Internal Incoherency Scores for Constraint-based Causal Discovery Algorithms" by Sofia Faltenbacher, Jonas Wahl, Rebecca Herman and Jakob Runge.
 
 ## Installation
 prerequisites: poetry, python3.11 (or later)
