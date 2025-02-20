@@ -46,10 +46,10 @@ if __name__ == "__main__":
         plt.scatter(sample_sizes, data["scores"][key][0], s=20, marker="s", label=key)
 
     plt.xscale("log")
-    plt.xlabel("Sample Size", fontsize=16)
-    plt.ylabel("Average Coherency Rate", fontsize=16)
+    plt.xlabel("Sample Size", fontsize=14)
+    plt.ylabel("Average Total Coherency Score", fontsize=14)
     plt.ylim(0.6, 1.05)
-    plt.title("Coherency Rates for Toy Model", fontsize=16)
+    plt.title("Total Coherency Score for Toy Model", fontsize=16)
     plt.legend(fontsize=14)
     plt.grid(True, linestyle="--", alpha=0.6)  # Add a subtle grid
 
