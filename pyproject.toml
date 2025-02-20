@@ -2,8 +2,9 @@
 name = "coherency-scores"
 version = "0.1.0"
 description = ""
-authors = []
+authors = ["Sofia Faltenbacher"]
 readme = "README.md"
+license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.11"
