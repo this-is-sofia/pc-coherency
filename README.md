@@ -1,6 +1,6 @@
-# Supplementary Code for paper "Internal Incoherency Detection for PC-like Causal Discovery Algorithms"
+# Supplementary Code for paper "Internal Incoherency Scores for Constraint-based Causal Discovery Algorithms"
 
-This repository contains the supplementary code for the paper "Internal Incoherency Detection for PC-like Causal Discovery Algorithms".
+This repository contains the supplementary code for the paper "Internal Incoherency Scores for Constraint-based Causal Discovery Algorithms".
 
 ## Installation
 prerequisites: poetry, python3.11 (or later)
